@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/HelloWorldCategory">
+  <message id="globalError" name="globalError"></message>
+  <process id="helloWorldSubProcess" name="Hello World process" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <callActivity id="compensateSubProcess" name="Retry Decision" calledElement="compensateSubProcess" activiti:inheritVariables="false">
+      <extensionElements>
+        <activiti:in source="tu" target="tu"></activiti:in>
+        <activiti:in source="retry" target="retry"></activiti:in>
+        <activiti:out source="retry" target="retry"></activiti:out>
+      </extensionElements>
+    </callActivity>
+    <subProcess id="subprocess1" name="Sub Process">
+      <serviceTask id="generateTuTask" name="Generate TU" activiti:delegateExpression="${transactionUnitGeneratorDelegate}"></serviceTask>
+      <sequenceFlow id="flow9" sourceRef="generateTuTask" targetRef="printHelloWorldTask"></sequenceFlow>
+      <serviceTask id="printHelloWorldTask" name="Print Hello World" activiti:delegateExpression="${helloWorldDelegate}"></serviceTask>
+      <startEvent id="startevent2" name="Start"></startEvent>
+      <sequenceFlow id="flow12" sourceRef="startevent2" targetRef="generateTuTask"></sequenceFlow>
+      <endEvent id="endevent2" name="End"></endEvent>
+      <sequenceFlow id="flow13" sourceRef="printHelloWorldTask" targetRef="endevent2"></sequenceFlow>
+    </subProcess>
+    <sequenceFlow id="flow10" sourceRef="startevent1" targetRef="subprocess1"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="subprocess1" targetRef="endevent1"></sequenceFlow>
+    <boundaryEvent id="boundaryerror1" name="Error" attachedToRef="subprocess1">
+      <errorEventDefinition></errorEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow14" sourceRef="boundaryerror1" targetRef="compensateSubProcess"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="errorFlow"></exclusiveGateway>
+    <sequenceFlow id="flow15" sourceRef="compensateSubProcess" targetRef="exclusivegateway1"></sequenceFlow>
+    <endEvent id="rethrowErrorEndEvent" name="ErrorEnd">
+      <errorEventDefinition errorRef="globalError"></errorEventDefinition>
+    </endEvent>
+    <sequenceFlow id="errorFlow" sourceRef="exclusivegateway1" targetRef="rethrowErrorEndEvent"></sequenceFlow>
+    <scriptTask id="denyFurtherRetryTask" name="Deny further retry" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script><![CDATA[execution.setVariable("retry", false);]]></script>
+    </scriptTask>
+    <sequenceFlow id="flow17" sourceRef="exclusivegateway1" targetRef="denyFurtherRetryTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${retry == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow18" sourceRef="denyFurtherRetryTask" targetRef="subprocess1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_helloWorldSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="helloWorldSubProcess" id="BPMNPlane_helloWorldSubProcess">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="141.0" y="175.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="780.0" y="175.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="compensateSubProcess" id="BPMNShape_compensateSubProcess">
+        <omgdc:Bounds height="55.0" width="105.0" x="452.0" y="360.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1">
+        <omgdc:Bounds height="205.0" width="515.0" x="200.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="generateTuTask" id="BPMNShape_generateTuTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="330.0" y="167.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="printHelloWorldTask" id="BPMNShape_printHelloWorldTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="470.0" y="167.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent2" id="BPMNShape_startevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="250.0" y="177.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="630.0" y="177.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundaryerror1" id="BPMNShape_boundaryerror1">
+        <omgdc:Bounds height="30.0" width="30.0" x="490.0" y="280.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="484.0" y="480.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rethrowErrorEndEvent" id="BPMNShape_rethrowErrorEndEvent">
+        <omgdc:Bounds height="35.0" width="35.0" x="780.0" y="483.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="denyFurtherRetryTask" id="BPMNShape_denyFurtherRetryTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="472.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="435.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="194.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="285.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="330.0" y="194.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="575.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="630.0" y="194.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="176.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="200.0" y="192.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="715.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="780.0" y="192.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="505.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="504.0" y="360.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="504.0" y="415.0"></omgdi:waypoint>
+        <omgdi:waypoint x="504.0" y="480.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="errorFlow" id="BPMNEdge_errorFlow">
+        <omgdi:waypoint x="524.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="780.0" y="500.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="484.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="405.0" y="499.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="300.0" y="499.0"></omgdi:waypoint>
+        <omgdi:waypoint x="125.0" y="499.0"></omgdi:waypoint>
+        <omgdi:waypoint x="125.0" y="219.0"></omgdi:waypoint>
+        <omgdi:waypoint x="200.0" y="192.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.flowable.examples</groupId>
-	<artifactId>flowable-examples</artifactId>
+	<groupId>org.accenture.flowable</groupId>
+	<artifactId>hello-world-subprocess-test</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>BPMN 2.0 with Flowable</name>
+	<name>Hello World POC with Flowable</name>
 	<properties>
 		<flowable.version>6.1.0</flowable.version>
 		<spring.boot.version>1.5.4.RELEASE</spring.boot.version>
